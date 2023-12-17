@@ -60,4 +60,7 @@ xcuserdata/
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
 
+### Firebase Cloud Messaging ###
+GoogleService-Info.plist
+
 # End of https://www.toptal.com/developers/gitignore/api/firebase,macos,xcode
