@@ -5,11 +5,11 @@
 //  Created by 문철현 on 12/18/23.
 //
 
+#if os(iOS)
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
 
-#if os(iOS)
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
 
   func application(

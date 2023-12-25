@@ -5,11 +5,11 @@
 //  Created by 문철현 on 12/17/23.
 //
 
+#if os(macOS)
 import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
 
-#if os(macOS)
 class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
   
   func applicationDidFinishLaunching(_ notification: Notification) {
