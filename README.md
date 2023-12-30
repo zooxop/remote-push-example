@@ -1,7 +1,5 @@
 # Remote Push Notification(with FCM) 예제 프로젝트
 
-## 개요
-
 이 프로젝트는 iOS 또는 macOS Application에 **Remote Push Notification** 기능을 구현하기 위해 필요한 정보들과 제약사항을 글로 정리하고, 이를 구현한 예제를 통해 해당 기능을 테스트 하는 방법까지 작성하기 위하여 제작되었음.
 
 해당 프로젝트는 [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging?hl=ko) (이하 FCM)을 기반으로 작성되었음.
@@ -20,8 +18,8 @@
 
 ## 프로젝트 설정
 
-iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절차들을 거쳐야 한다.
-> **원격 푸시는 테스트용이라 할지라도 애플 개발자 프로그램에 가입해야 한다.**
+iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절차들을 거쳐야 한다.  
+**원격 푸시는 테스트용이라 할지라도 애플 개발자 프로그램에 가입해야 한다.**
 
 ### Apple APNs Key(.p8) 생성
 
@@ -29,9 +27,9 @@ iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절�
 2. [인증서, 식별자 및 프로파일] > [키(영문)] 메뉴 진입
 3. **Key (.p8) 발급 및 파일 다운로드**
 
-![apns-key](./readme-assets/readme-2.png)
+> **다운받은 키 파일(.p8)은 잘 보관해야 한다. (다시 다운로드 할 수 없고, 분실했다면 다른 key를 다시 발급받아야 함.)**
 
-> 다운받은 키 파일(.p8)은 잘 보관해야 한다. (다시 다운로드 할 수 없고, 분실했다면 다른 key를 다시 발급받아야 함.)
+![apns-key](./readme-assets/readme-2.png)
 
 ### FCM 프로젝트 생성
 
@@ -41,7 +39,8 @@ iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절�
 
 ### 생성한 FCM 프로젝트에 iOS 앱 등록
 
-만약 이 프로젝트를 그대로 자신의 환경에서 테스트 하려 한다면, **이 프로젝트 파일의 Bundle Identifier를 자신의 Firebase 프로젝트에 입력한 값으로 수정**해서 사용한다.
+만약 이 프로젝트를 그대로 자신의 환경에서 테스트 하려 한다면,  
+**이 프로젝트 파일의 Bundle Identifier를 자신의 Firebase 프로젝트에 입력한 값으로 수정**해서 사용한다.
 
 ![Firebase_add_app](readme-assets/readme-3.png)
 
