@@ -19,7 +19,7 @@
 ## 프로젝트 설정
 
 iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절차들을 거쳐야 한다.  
-**원격 푸시는 테스트용이라 할지라도 애플 개발자 프로그램에 가입해야 한다.**
+❗️ **원격 푸시는 테스트용이라 할지라도 애플 개발자 프로그램에 가입해야 한다.**
 
 ### Apple APNs Key(.p8) 생성
 
@@ -95,14 +95,89 @@ FCM SDK가 고쳐진건지 어떻게 된건지는 모르겠지만 아무튼, **�
 
 ## 테스트 방법
 
-- [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/) 에서 1시간짜리 FCM 토큰 생성하기.
-- FCM에 전송할 API 요청 메시지 작성하기.
-  - 일반 푸시 요청 예시
-  - 사일런트(Silent) 푸시 요청 예시
-- Postman으로 테스트하기.
+### [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/) - FCM 액세스 토큰 생성하기.
 
-작성중..
+Firebase의 HTTP API가 **`HTTP v1`** 으로 업그레이드 되면서, OAuth2 보안 모델에 따른 수명이 짧은 (1시간) 액세스 토큰을 사용하도록 변경되었다고 한다. 자세한 설명은 [FCM - HTTP v1 API로 이전](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=ko) 페이지 참조.
 
-## 동작 예시 (gif)
+Google Developer 페이지에서는, 테스트를 위해 이 액세스 토큰을 생성해주는 솔루션인 [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)를 제공해주고 있다.
 
-작성중..
+- [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/) 페이지에 접속한 뒤, `Firebase Cloud Messaging API v1` 을 검색하고 선택한다.
+- 좌측의 `Step 1` 리스트에서 https://www.googleapis.com/auth/firebase.messaging` 을 선택한 뒤, 하단의 **`Authorize APIs`** 버튼을 클릭한다.
+- 구글 계정 인증을 진행한 뒤, 다시 돌아온 `Step 2` 화면의 **`Exchange authorization code for tokens`** 버튼을 클릭하면 **Access token** 발급이 완료된다.
+  - 이 토큰의 수명은 1시간이므로, 테스트 도중에 토큰이 만료되면 `Refresh access token` 버튼을 클릭하여 갱신된 토큰을 사용한다.
+
+![OAuth2 playground - Access token 발급](readme-assets/readme-9.png)
+
+### `Postman` 테스트 환경 구성하기
+
+이제 메시지 발송 API를 요청하기만 하면, Push 메시지가 디바이스로 전달될 것이다.  
+메시지 전송 테스트까지 Playground 페이지에서 해도 되지만, 메시지 전송 이력이 남지 않는 불편함이 있어서 나는 `Postman`을 사용했다.
+
+- `Postman` 앱을 실행한 뒤, 메시지 템플릿을 생성하고 type을 **`POST`** 로 설정한다.
+- 요청 URL을 다음과 같이 설정한다.
+  - `https://fcm.googleapis.com/v1/projects/{Firebase 프로젝트 ID}/messages:send`
+  - "Firebase 프로젝트 ID"는 각자 생성한 Firebase 프로젝트 페이지에 접속하여 [프로젝트 설정] 메뉴에서 확인할 수 있다.
+- `Headers` 탭을 열고, 다음과 같이 key-value 값을 설정한다.
+  - Content-type : application/json
+  - Authorization : Bearer <생성한 Access token>
+
+![Postman Headers setting](readme-assets/readme-10.png)
+
+### FCM에 전송할 API 요청 메시지 작성하기.
+
+이제, 클라이언트에게 보낼 메시지 내용을 작성할 차례이다.  
+마지막으로 한 가지 더 확인해야 할 것이 있는데, 바로 **"어떤 클라이언트에게 메시지를 보낼 것인가"** 이다.
+
+위에서 설명한대로, **각 클라이언트(디바이스)는 FCM 토큰을 발급받고 이를 저장**하고 있는다. (완전 영구적인 것은 아니라고 한다.)  
+**메시지를 발송하는 쪽에서 이 클라이언트 토큰을 함께 보내줘야** FCM 서버가 메시지를 잘 전달할 것이다.
+
+이 프로젝트를 열고 앱을 맨 처음 실행하면, Xcode 콘솔에 다음과 같이 메시지가 출력되는 것을 볼 수 있다.  
+우리는 Optional로 감싸져 있는 Firebase token만 알면 된다.
+
+![FCM Client token](readme-assets/readme-11.png)
+
+푸시 메시지를 보내는 방법은 **크게 두 가지**가 있다.  
+메시지의 제목과 내용, 그리고 선택적으로 푸시 알람 우측의 이미지를 포함시켜서 보내는 **일반적인 방식**과,  
+사용자에게 메시지 노출을 하지 않고, 오직 이벤트만 수신하는 **사일런트 푸시(Silent push)** 방식이다.
+
+#### ✉️ 일반 푸시 메시지 요청 예시
+
+```json
+{
+    "message": {
+        "token": "{클라이언트 FCM 토큰}",
+        "notification": {
+            "body": "Body of Your Notification in data",
+            "title": "Title of Your Notification in data"
+        }
+    }
+}
+```
+
+#### 🤐 사일런트(Silent) 푸시 요청 예시
+
+```json
+{
+    "message": {
+        "token": "{클라이언트 FCM 토큰}",
+        "apns": {
+            "payload": {
+                "aps": {
+                    "content-available": 1
+                }
+            }
+        }
+    }
+}
+```
+
+## 동작 예시
+
+이 프로젝트는 푸시 메시지를 수신하고 `UNUserNotificationCenter` 의 이벤트(메서드)가 동작할 때 마다 화면에 표시된 숫자를 +1 시켜주는 아주 단순한 동작을 수행한다.
+
+### iOS
+
+
+
+### macOS
+
