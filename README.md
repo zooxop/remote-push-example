@@ -171,13 +171,67 @@ Google Developer 페이지에서는, 테스트를 위해 이 액세스 토큰을
 }
 ```
 
+#### ✉️ + 🤐 푸시 메시지를 함께 보내면서 사일런트 푸시로 호출하기
+
+```json
+{
+    "message": {
+        "token": "{클라이언트 FCM 토큰}",
+        "apns": {
+            "payload": {
+                "aps": {
+                    "content-available": 1
+                }
+            }
+        },
+        "notification": {
+            "body": "Body of Your Notification in data",
+            "title": "Title of Your Notification in data"
+        }
+    }
+}
+```
+
 ## 동작 예시
 
-이 프로젝트는 푸시 메시지를 수신하고 `UNUserNotificationCenter` 의 이벤트(메서드)가 동작할 때 마다 화면에 표시된 숫자를 +1 시켜주는 아주 단순한 동작을 수행한다.
+이 예시 프로젝트는 푸시 메시지를 수신하고 `UNUserNotificationCenter` 의 이벤트(메서드)가 동작할 때 마다 **화면에 표시된 숫자를 +1 시켜주는 아주 단순한 동작**을 수행한다.
 
-### iOS
+### 📱 iOS
 
+1. **`userNotificationCenter(_:didReceive:withCompletionHandler:)`** 메서드는 사용자가 **푸시 메시지를 터치했을 때 호출**된다.
 
+![iOS Push example 1](readme-assets/example-ios-1.gif)
 
-### macOS
+2. **`userNotificationCenter(_:willPresent:withCompletionHandler:)`** 메서드는 **앱이 Foreground 상태일 때 메시지를 수신하면 호출**된다.
 
+**이 메서드의 리턴값을 수정하면, 메시지를 보여주지 않게 변경할 수도 있다.**
+
+![iOS Push example 2](readme-assets/example-ios-2.gif)
+
+3. **`application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`** 메서드는 앱의 상태와 상관없이, 사일런트 푸시일 때만 호출된다.
+
+사일런트 푸시는 요청 body에 `"content-available": 1` 옵션이 포함되어 있는 경우를 말한다.
+
+> **시뮬레이터 환경에서는 사일런트 푸시를 수신할 수 없어서** 화면 녹화는 생략하였음.
+
+### 💻 macOS
+
+`macOS` 는 두 가지 특이사항이 있다.
+
+1. **사일런트 타입이어도, 사일런트가 아니어도** **`application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`** 메서드가 **무조건 호출된다.**
+
+실험에 의한 결과이기에, 이렇게 동작하는 현상이 애플이 설계한대로 잘 작동한것인지 아니면 오히려 오동작인 것인지는 잘 모르겠다. 아무튼, iOS와는 다르게 **사일런트가 아니어도 `didReceiveRemoteNotification` 메서드가 매번 호출**된다.
+
+![macOS Push example 1](/readme-assets/example-mac-1.gif)
+
+2. **`userNotificationCenter(_:didReceive:withCompletionHandler:)`** 메서드는 iOS와 마찬가지로, Push 알림 메시지를 **클릭했을 때 호출**된다.
+
+**영상 녹화 모드일때는 Push 메시지가 화면에 보이지 않기 때문에,** 아래의 gif 에서는 메시지를 클릭하는 모습은 보이지 않는 점을 참고.
+
+![macOS Push example 2](/readme-assets/example-mac-2.gif)
+
+1. **`userNotificationCenter(_:willPresent:withCompletionHandler:)`** 메서드의 호출 조건은 앱이 **포커스** 를 갖고있는가? 이다.
+
+단순히 모니터에 앱이 보인다고 해서 호출되는것이 아니다. 따라서 `willPresent` 메서드를 테스트 해보려면, Postman으로 메시지를 전송하고 잽싸게 **앱을 마우스로 클릭** 하여서 포커스를 잡아줘야 메서드가 호출된다.
+
+![macOS Push example 3](/readme-assets/example-mac-3.gif)
