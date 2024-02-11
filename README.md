@@ -2,6 +2,8 @@
 
 이 프로젝트는 iOS 또는 macOS Application에 **Remote Push Notification** 기능을 구현하기 위해 필요한 정보들과 제약사항을 글로 정리하고, 이를 구현한 예제를 통해 해당 기능을 테스트 하는 방법까지 작성하기 위하여 제작되었음.
 
+관련 정리글 : [블로그 - FCM을 사용한 Remote Push Notification 구현 방법과 문제 해결 기록](https://cloverlaun.tistory.com/89)
+
 해당 프로젝트는 [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging?hl=ko) (이하 FCM)을 기반으로 작성되었음.
 
 ## 환경
@@ -83,9 +85,7 @@ iOS, macOS Application을 FCM과 연동하기 위해서는 먼저 아래의 절�
 
 ### 📎 `Info.plist` 설정
 
-프로젝트의 `Info.plist` 파일에 `FirebaseAppDelegateProxyEnabled` 항목을 추가해준다. 타입은 **`Boolean`** 으로 지정해주고, 값은 **`NO`** 로 설정한다. 이 설정을 건너뛰면 release 스킴일 때 푸시를 받아볼 수 없다고 한다. (직접 테스트는 안해봤다.)
-
-이 설정은 Firebase가 앱이 실행될 때 디바이스의 APNs 토큰을 생성, 등록하는 메서드를 스위즐링하는 옵션을 끄는 것이라고 한다. (이걸 왜 꺼야만 하는건지는 아직 잘 모르겠지만 우선 가이드를 따른다.)
+프로젝트의 `Info.plist` 파일에 `FirebaseAppDelegateProxyEnabled` 항목을 추가해준다. 타입은 **`Boolean`** 으로 지정해주고, 값은 **`NO`** 로 설정한다. 이 설정은 Firebase가 **앱의 Remote Notification Receiver 메서드를 스위즐링하는 옵션을 OFF 시켜주는 값**이라고 한다. 이 설정을 건너뛰면 release 스킴일 때 푸시를 받아볼 수 없다고 한다. (직접 테스트는 안해봤다.)
 
 > [Firebase 가이드 - Apple 플랫폼 클라이언트 설정](https://firebase.google.com/docs/cloud-messaging/ios/client?hl=ko)
 > 
@@ -107,7 +107,7 @@ https://firebase.google.com/docs/cloud-messaging/ios/client#method_swizzling_in_
 to ensure proper integration.
 ```
 
-FCM SDK가 고쳐진건지 어떻게 된건지는 모르겠지만 아무튼, <u>**과거에는 String 으로 설정해야 했다면 지금은 아니다.**</u> (적어도 내 테스트 환경에서는 그렇다.)
+FCM SDK가 고쳐진건지 어떻게 된건지는 모르겠지만 아무튼, <u>**과거에는 String 으로 설정해야 했다면 지금은 Boolean 으로 설정해주어야 한다.**</u> (적어도 내 테스트 환경에서는 그렇다.)
 
 ## 테스트 방법
 
